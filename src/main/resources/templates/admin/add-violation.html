@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Violation | Traffic Manager</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body { background-color: #f4f6f9; }
+        .sidebar { min-height: 100vh; background: #212529; }
+        .sidebar a { color: #adb5bd; text-decoration: none; padding: 12px 20px; display: block; transition: 0.2s; }
+        .sidebar a:hover, .sidebar a.active { color: #fff; background: #343a40; }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand fw-bold" href="#"><i class="bi bi-car-front-fill me-2"></i>Traffic Violation Manager</a>
+        <div class="d-flex align-items-center">
+            <span class="text-light me-3" sec:authentication="name">Admin</span>
+            <form th:action="@{/logout}" method="post" class="d-inline">
+                <button type="submit" class="btn btn-outline-light btn-sm"><i class="bi bi-box-arrow-right"></i> Logout</button>
+            </form>
+        </div>
+    </div>
+</nav>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-2 sidebar p-0 pt-3">
+            <div class="text-center text-light mb-3">
+                <i class="bi bi-shield-lock fs-1"></i>
+                <p class="mb-0 fw-bold">Admin Panel</p>
+            </div>
+            <hr class="text-secondary">
+            <a th:href="@{/admin/dashboard}"><i class="bi bi-speedometer2 me-2"></i>Dashboard</a>
+            <a th:href="@{/admin/rules}"><i class="bi bi-list-check me-2"></i>Traffic Rules</a>
+            <a th:href="@{/admin/violations}"><i class="bi bi-exclamation-triangle me-2"></i>All Violations</a>
+            <a th:href="@{/admin/violations/add}" class="active"><i class="bi bi-plus-circle me-2"></i>Add Violation</a>
+        </div>
+
+        <div class="col-md-10 p-4">
+            <div th:if="${error}" class="alert alert-danger alert-dismissible fade show">
+                <span th:text="${error}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+
+            <h2 class="fw-bold mb-4"><i class="bi bi-plus-circle me-2"></i>Record New Violation</h2>
+
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <div th:if="${#lists.isEmpty(vehicles)}" class="text-center text-muted py-4">
+                        <i class="bi bi-exclamation-circle fs-1"></i>
+                        <p class="mt-2">No vehicles registered yet. Users need to register and add their vehicles first.</p>
+                    </div>
+
+                    <form th:if="${!#lists.isEmpty(vehicles)}" th:action="@{/admin/violations/add}" method="post">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Select Vehicle</label>
+                                <select name="vehicleId" class="form-select" required>
+                                    <option value="">-- Choose Vehicle --</option>
+                                    <option th:each="v : ${vehicles}" th:value="${v.id}"
+                                            th:text="${v.registrationNumber + ' (' + v.vehicleType + ' - ' + v.user.fullName + ')'}">
+                                    </option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Select Rule Violated</label>
+                                <select name="ruleId" class="form-select" required>
+                                    <option value="">-- Choose Rule --</option>
+                                    <option th:each="r : ${rules}" th:value="${r.id}"
+                                            th:text="${r.ruleName + ' - Rs. ' + r.fineAmount}">
+                                    </option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Location</label>
+                                <input type="text" name="location" class="form-control" placeholder="e.g. MG Road, Bangalore" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Description</label>
+                                <input type="text" name="description" class="form-control" placeholder="Brief description of the violation" required>
+                            </div>
+                            <div class="col-12">
+                                <button type="submit" class="btn btn-primary px-4 py-2">
+                                    <i class="bi bi-plus-circle me-2"></i>Record Violation
+                                </button>
+                                <a th:href="@{/admin/violations}" class="btn btn-outline-secondary px-4 py-2 ms-2">Cancel</a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

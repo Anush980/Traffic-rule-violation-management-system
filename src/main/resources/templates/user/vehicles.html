@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Vehicles | Traffic Manager</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body { background-color: #f4f6f9; }
+        .sidebar { min-height: 100vh; background: #212529; }
+        .sidebar a { color: #adb5bd; text-decoration: none; padding: 12px 20px; display: block; transition: 0.2s; }
+        .sidebar a:hover, .sidebar a.active { color: #fff; background: #343a40; }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand fw-bold" href="#"><i class="bi bi-car-front-fill me-2"></i>Traffic Violation Manager</a>
+        <div class="d-flex align-items-center">
+            <span class="text-light me-3" sec:authentication="name">User</span>
+            <form th:action="@{/logout}" method="post" class="d-inline">
+                <button type="submit" class="btn btn-outline-light btn-sm"><i class="bi bi-box-arrow-right"></i> Logout</button>
+            </form>
+        </div>
+    </div>
+</nav>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-2 sidebar p-0 pt-3">
+            <div class="text-center text-light mb-3">
+                <i class="bi bi-person-circle fs-1"></i>
+                <p class="mb-0 fw-bold" sec:authentication="name">User</p>
+            </div>
+            <hr class="text-secondary">
+            <a th:href="@{/user/dashboard}"><i class="bi bi-speedometer2 me-2"></i>Dashboard</a>
+            <a th:href="@{/user/vehicles}" class="active"><i class="bi bi-truck me-2"></i>My Vehicles</a>
+            <a th:href="@{/user/violations}"><i class="bi bi-exclamation-triangle me-2"></i>My Violations</a>
+            <a th:href="@{/user/change-password}"><i class="bi bi-key me-2"></i>Change Password</a>
+        </div>
+
+        <div class="col-md-10 p-4">
+            <div th:if="${success}" class="alert alert-success alert-dismissible fade show">
+                <span th:text="${success}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            <div th:if="${error}" class="alert alert-danger alert-dismissible fade show">
+                <span th:text="${error}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+
+            <h2 class="fw-bold mb-4"><i class="bi bi-truck me-2"></i>My Vehicles</h2>
+
+            <!-- Add Vehicle Form -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="bi bi-plus-circle me-2"></i>Add New Vehicle</h5>
+                </div>
+                <div class="card-body">
+                    <form th:action="@{/user/vehicles/add}" th:object="${newVehicle}" method="post" class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">Registration Number</label>
+                            <input type="text" th:field="*{registrationNumber}" class="form-control"
+                                   placeholder="e.g. KA-01-AB-1234" required>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label fw-semibold">Vehicle Type</label>
+                            <select th:field="*{vehicleType}" class="form-select" required>
+                                <option value="">-- Select Type --</option>
+                                <option th:each="type : ${vehicleTypes}" th:value="${type}" th:text="${type}">CAR</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label fw-semibold">Model / Name</label>
+                            <input type="text" th:field="*{model}" class="form-control" placeholder="e.g. Honda City" required>
+                        </div>
+                        <div class="col-md-2 d-flex align-items-end">
+                            <button type="submit" class="btn btn-primary w-100"><i class="bi bi-plus-lg me-1"></i>Add</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Vehicles List -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0 fw-bold"><i class="bi bi-list-ul me-2"></i>My Registered Vehicles</h5>
+                </div>
+                <div class="card-body">
+                    <div th:if="${#lists.isEmpty(vehicles)}" class="text-center text-muted py-4">
+                        <i class="bi bi-truck fs-1"></i>
+                        <p class="mt-2">No vehicles registered yet. Add your first vehicle above!</p>
+                    </div>
+                    <table th:if="${!#lists.isEmpty(vehicles)}" class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>#</th>
+                                <th>Registration No.</th>
+                                <th>Type</th>
+                                <th>Model</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="v, iter : ${vehicles}">
+                                <td th:text="${iter.count}">1</td>
+                                <td class="fw-semibold" th:text="${v.registrationNumber}">KA-01-AB-1234</td>
+                                <td>
+                                    <span class="badge bg-secondary" th:text="${v.vehicleType}">CAR</span>
+                                </td>
+                                <td th:text="${v.model}">Honda City</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register | Traffic Violation Management</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body { background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); min-height: 100vh; display: flex; align-items: center; }
+        .register-card { border: none; border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); }
+        .password-requirements { font-size: 0.8rem; }
+        .requirement { color: #dc3545; }
+        .requirement.met { color: #198754; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card register-card">
+                <div class="card-body p-5">
+                    <div class="text-center mb-4">
+                        <i class="bi bi-person-plus-fill text-primary" style="font-size: 3rem;"></i>
+                        <h3 class="mt-2 fw-bold">Create Account</h3>
+                        <p class="text-muted">Register to manage your traffic violations</p>
+                    </div>
+
+                    <div th:if="${error}" class="alert alert-danger">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        <span th:text="${error}"></span>
+                    </div>
+
+                    <form th:action="@{/register}" th:object="${user}" method="post">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Full Name</label>
+                            <input type="text" th:field="*{fullName}" class="form-control" placeholder="Enter full name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Email</label>
+                            <input type="email" th:field="*{email}" class="form-control" placeholder="Enter email" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Phone Number</label>
+                            <input type="text" th:field="*{phone}" class="form-control" placeholder="Enter 10-digit phone number"
+                                   required pattern="\d{10}" maxlength="10" title="Phone number must be exactly 10 digits">
+                            <div class="form-text">Must be exactly 10 digits (e.g., 9876543210)</div>
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">Password</label>
+                            <div class="input-group">
+                                <input type="password" th:field="*{password}" class="form-control" id="passwordInput"
+                                       placeholder="Create a password" required minlength="8">
+                                <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('passwordInput', this)">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                            </div>
+                            <div class="password-requirements mt-2">
+                                <div id="req-length" class="requirement"><i class="bi bi-x-circle me-1"></i>At least 8 characters</div>
+                                <div id="req-upper" class="requirement"><i class="bi bi-x-circle me-1"></i>At least one uppercase letter</div>
+                                <div id="req-lower" class="requirement"><i class="bi bi-x-circle me-1"></i>At least one lowercase letter</div>
+                                <div id="req-digit" class="requirement"><i class="bi bi-x-circle me-1"></i>At least one digit</div>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100 py-2 fw-bold">
+                            <i class="bi bi-person-plus me-2"></i>Register
+                        </button>
+                    </form>
+
+                    <div class="text-center mt-4">
+                        <p class="text-muted">Already have an account?
+                            <a th:href="@{/login}" class="text-primary fw-bold">Login here</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Real-time password strength indicator
+    document.getElementById('passwordInput').addEventListener('input', function() {
+        const pw = this.value;
+        toggleReq('req-length', pw.length >= 8);
+        toggleReq('req-upper', /[A-Z]/.test(pw));
+        toggleReq('req-lower', /[a-z]/.test(pw));
+        toggleReq('req-digit', /\d/.test(pw));
+    });
+
+    function toggleReq(id, met) {
+        const el = document.getElementById(id);
+        if (met) {
+            el.classList.add('met');
+            el.innerHTML = '<i class="bi bi-check-circle-fill me-1"></i>' + el.textContent.trim();
+        } else {
+            el.classList.remove('met');
+            el.innerHTML = '<i class="bi bi-x-circle me-1"></i>' + el.textContent.trim();
+        }
+    }
+
+    function togglePassword(inputId, btn) {
+        const input = document.getElementById(inputId);
+        const icon = btn.querySelector('i');
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.replace('bi-eye', 'bi-eye-slash');
+        } else {
+            input.type = 'password';
+            icon.classList.replace('bi-eye-slash', 'bi-eye');
+        }
+    }
+</script>
+</body>
+</html>

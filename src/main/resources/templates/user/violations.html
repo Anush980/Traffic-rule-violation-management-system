@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Violations | Traffic Manager</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body { background-color: #f4f6f9; }
+        .sidebar { min-height: 100vh; background: #212529; }
+        .sidebar a { color: #adb5bd; text-decoration: none; padding: 12px 20px; display: block; transition: 0.2s; }
+        .sidebar a:hover, .sidebar a.active { color: #fff; background: #343a40; }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand fw-bold" href="#"><i class="bi bi-car-front-fill me-2"></i>Traffic Violation Manager</a>
+        <div class="d-flex align-items-center">
+            <span class="text-light me-3" sec:authentication="name">User</span>
+            <form th:action="@{/logout}" method="post" class="d-inline">
+                <button type="submit" class="btn btn-outline-light btn-sm"><i class="bi bi-box-arrow-right"></i> Logout</button>
+            </form>
+        </div>
+    </div>
+</nav>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-2 sidebar p-0 pt-3">
+            <div class="text-center text-light mb-3">
+                <i class="bi bi-person-circle fs-1"></i>
+                <p class="mb-0 fw-bold" sec:authentication="name">User</p>
+            </div>
+            <hr class="text-secondary">
+            <a th:href="@{/user/dashboard}"><i class="bi bi-speedometer2 me-2"></i>Dashboard</a>
+            <a th:href="@{/user/vehicles}"><i class="bi bi-truck me-2"></i>My Vehicles</a>
+            <a th:href="@{/user/violations}" class="active"><i class="bi bi-exclamation-triangle me-2"></i>My Violations</a>
+            <a th:href="@{/user/change-password}"><i class="bi bi-key me-2"></i>Change Password</a>
+        </div>
+
+        <div class="col-md-10 p-4">
+            <h2 class="fw-bold mb-4"><i class="bi bi-exclamation-triangle me-2"></i>My Violations</h2>
+
+            <!-- Summary Cards -->
+            <div class="row g-3 mb-4">
+                <div class="col-md-4">
+                    <div class="card border-start border-4 border-danger">
+                        <div class="card-body">
+                            <h6 class="text-muted">Total Fines</h6>
+                            <h3 class="fw-bold text-danger">Rs. <span th:text="${#numbers.formatDecimal(totalFines, 1, 2)}">0</span></h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card border-start border-4 border-success">
+                        <div class="card-body">
+                            <h6 class="text-muted">Paid</h6>
+                            <h3 class="fw-bold text-success">Rs. <span th:text="${#numbers.formatDecimal(paidFines, 1, 2)}">0</span></h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card border-start border-4 border-warning">
+                        <div class="card-body">
+                            <h6 class="text-muted">Pending</h6>
+                            <h3 class="fw-bold text-warning">Rs. <span th:text="${#numbers.formatDecimal(totalFines - paidFines, 1, 2)}">0</span></h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Violations Table -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div th:if="${#lists.isEmpty(violations)}" class="text-center text-muted py-5">
+                        <i class="bi bi-emoji-smile fs-1 text-success"></i>
+                        <p class="mt-2 fs-5">No violations found. Keep driving safe!</p>
+                    </div>
+                    <table th:if="${!#lists.isEmpty(violations)}" class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>#</th>
+                                <th>Vehicle</th>
+                                <th>Rule Violated</th>
+                                <th>Description</th>
+                                <th>Fine Amount</th>
+                                <th>Location</th>
+                                <th>Date</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="v, iter : ${violations}">
+                                <td th:text="${iter.count}">1</td>
+                                <td class="fw-semibold" th:text="${v.vehicle.registrationNumber}">KA-01-1234</td>
+                                <td th:text="${v.trafficRule.ruleName}">Over Speeding</td>
+                                <td th:text="${v.description}">Exceeded 80 kmph</td>
+                                <td class="fw-bold text-danger">Rs. <span th:text="${v.trafficRule.fineAmount}">1000</span></td>
+                                <td th:text="${v.location}">MG Road</td>
+                                <td th:text="${#temporals.format(v.violationDate, 'dd MMM yyyy, hh:mm a')}">01 Jan 2025</td>
+                                <td>
+                                    <span th:if="${v.status.name() == 'PENDING'}" class="badge bg-warning text-dark">PENDING</span>
+                                    <span th:if="${v.status.name() == 'PAID'}" class="badge bg-success">PAID</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
