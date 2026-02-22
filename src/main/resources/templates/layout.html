@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${pageTitle != null ? pageTitle + ' | Traffic Manager' : 'Traffic Violation Management'}">Traffic Violation Management</title>
+        <title th:text="${appName}"></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
     <style>
@@ -22,9 +22,9 @@
 <!-- Navbar -->
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container-fluid">
-        <a class="navbar-brand fw-bold" href="#">
-            <i class="bi bi-car-front-fill me-2"></i>Traffic Violation Manager
-        </a>
+       <a class="navbar-brand fw-bold" href="#" th:text="${appName}">
+    <i class="bi bi-car-front-fill me-2"></i>App
+</a>
         <div class="d-flex align-items-center">
             <span class="text-light me-3" sec:authentication="name">User</span>
             <form th:action="@{/logout}" method="post" class="d-inline">

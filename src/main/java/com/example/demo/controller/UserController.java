@@ -5,6 +5,8 @@ import com.example.demo.model.Vehicle;
 import com.example.demo.repository.UserRepository;
 import com.example.demo.service.VehicleService;
 import com.example.demo.service.ViolationService;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
@@ -44,6 +46,9 @@ public class UserController {
     private final ViolationService violationService;
     private final PasswordEncoder passwordEncoder;
 
+    @Value("${app.name}")
+    private String appName;
+
     /** Constructor injection */
     public UserController(UserRepository userRepository, VehicleService vehicleService,
                           ViolationService violationService, PasswordEncoder passwordEncoder) {
@@ -51,6 +56,11 @@ public class UserController {
         this.vehicleService = vehicleService;
         this.violationService = violationService;
         this.passwordEncoder = passwordEncoder;
+    }
+
+    @ModelAttribute
+    public void addGlobalAttributes(Model model) {
+        model.addAttribute("appName", appName);
     }
 
     /**

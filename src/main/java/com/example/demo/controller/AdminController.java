@@ -8,6 +8,8 @@ import com.example.demo.repository.VehicleRepository;
 import com.example.demo.service.TrafficRuleService;
 import com.example.demo.service.VehicleService;
 import com.example.demo.service.ViolationService;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -47,6 +49,10 @@ public class AdminController {
     private final VehicleRepository vehicleRepository;
     private final UserRepository userRepository;
 
+
+       @Value("${app.name}")
+    private String appName;
+    
     /** Constructor injection - Spring provides all 5 dependencies */
     public AdminController(TrafficRuleService trafficRuleService, ViolationService violationService,
                            VehicleService vehicleService, VehicleRepository vehicleRepository,
@@ -56,6 +62,11 @@ public class AdminController {
         this.vehicleService = vehicleService;
         this.vehicleRepository = vehicleRepository;
         this.userRepository = userRepository;
+    }
+
+    @ModelAttribute
+    public void addGlobalAttributes(Model model) {
+        model.addAttribute("appName", appName);
     }
 
     // ================================================================
