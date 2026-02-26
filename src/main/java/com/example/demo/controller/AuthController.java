@@ -20,14 +20,14 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
  * =====================================================================
  *
  * ENDPOINTS:
- *   GET  /                --> Redirects to /login
- *   GET  /login           --> Shows the login page
- *   GET  /register        --> Shows the registration form
- *   POST /register        --> Processes registration form submission
- *   GET  /forgot-password --> Shows forgot password form
- *   POST /forgot-password --> Verifies email + phone
- *   GET  /reset-password  --> Shows reset password form
- *   POST /reset-password  --> Saves new password
+ * GET / --> Redirects to /login
+ * GET /login --> Shows the login page
+ * GET /register --> Shows the registration form
+ * POST /register --> Processes registration form submission
+ * GET /forgot-password --> Shows forgot password form
+ * POST /forgot-password --> Verifies email + phone
+ * GET /reset-password --> Shows reset password form
+ * POST /reset-password --> Saves new password
  */
 @Controller
 public class AuthController {
@@ -52,7 +52,7 @@ public class AuthController {
 
     @GetMapping("/")
     public String home() {
-        
+
         return "redirect:/login";
     }
 
@@ -71,10 +71,11 @@ public class AuthController {
      * PROCESS REGISTRATION - Validates and saves a new user.
      *
      * Validations:
-     *   1. Email must not already be registered
-     *   2. Phone must be exactly 10 digits
-     *   3. Password must meet medium difficulty (8+ chars, 1 uppercase, 1 lowercase, 1 digit)
-     *   4. Password must not be the same as email
+     * 1. Email must not already be registered
+     * 2. Phone must be exactly 10 digits
+     * 3. Password must meet medium difficulty (8+ chars, 1 uppercase, 1 lowercase,
+     * 1 digit)
+     * 4. Password must not be the same as email
      */
     @PostMapping("/register")
     public String registerUser(@ModelAttribute User user, RedirectAttributes redirectAttributes) {
@@ -96,7 +97,8 @@ public class AuthController {
             return "redirect:/register";
         }
 
-        // Validate password medium difficulty: min 8 chars, 1 uppercase, 1 lowercase, 1 digit
+        // Validate password medium difficulty: min 8 chars, 1 uppercase, 1 lowercase, 1
+        // digit
         String password = user.getPassword();
         if (password.length() < 8) {
             redirectAttributes.addFlashAttribute("error", "Password must be at least 8 characters long!");
@@ -125,10 +127,10 @@ public class AuthController {
     }
 
     // ================================================================
-    //  FORGOT PASSWORD - 3-step flow:
-    //  Step 1: Enter email OR phone to find account
-    //  Step 2: Enter verification code (demo code: 122333)
-    //  Step 3: Set new password
+    // FORGOT PASSWORD - 3-step flow:
+    // Step 1: Enter email OR phone to find account
+    // Step 2: Enter verification code (demo code: 122333)
+    // Step 3: Set new password
     // ================================================================
 
     @GetMapping("/forgot-password")
@@ -142,7 +144,7 @@ public class AuthController {
      */
     @PostMapping("/forgot-password")
     public String findAccount(@RequestParam String identifier,
-                              RedirectAttributes redirectAttributes) {
+            RedirectAttributes redirectAttributes) {
         String trimmed = identifier.trim();
 
         // Try to find user by email or phone
@@ -152,7 +154,8 @@ public class AuthController {
         } else if (trimmed.contains("@")) {
             userOpt = userRepository.findByEmail(trimmed);
         } else {
-            redirectAttributes.addFlashAttribute("error", "Please enter a valid email address or a 10-digit phone number!");
+            redirectAttributes.addFlashAttribute("error",
+                    "Please enter a valid email address or a 10-digit phone number!");
             return "redirect:/forgot-password";
         }
 
@@ -192,7 +195,7 @@ public class AuthController {
      */
     @PostMapping("/verify-code")
     public String verifyCode(@RequestParam String email, @RequestParam String code,
-                             RedirectAttributes redirectAttributes) {
+            RedirectAttributes redirectAttributes) {
         if (!emailService.verifyOtp(email, code)) {
             redirectAttributes.addFlashAttribute("error", "Invalid or expired verification code! Please try again.");
             redirectAttributes.addFlashAttribute("userEmail", email);
@@ -220,8 +223,8 @@ public class AuthController {
      */
     @PostMapping("/reset-password")
     public String resetPassword(@RequestParam String email, @RequestParam String newPassword,
-                                @RequestParam String confirmPassword,
-                                RedirectAttributes redirectAttributes) {
+            @RequestParam String confirmPassword,
+            RedirectAttributes redirectAttributes) {
         // Validate passwords match
         if (!newPassword.equals(confirmPassword)) {
             redirectAttributes.addFlashAttribute("error", "Passwords do not match!");
@@ -266,10 +269,17 @@ public class AuthController {
         }
 
         User user = userOpt.get();
+        if (passwordEncoder.matches(newPassword, user.getPassword())) {
+            redirectAttributes.addFlashAttribute("error",
+                    "New password cannot be the same as your old password!");
+            redirectAttributes.addFlashAttribute("verifiedEmail", email);
+            return "redirect:/reset-password";
+        }
         user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
 
-        redirectAttributes.addFlashAttribute("success", "Password reset successful! Please login with your new password.");
+        redirectAttributes.addFlashAttribute("success",
+                "Password reset successful! Please login with your new password.");
         return "redirect:/login";
     }
 }
